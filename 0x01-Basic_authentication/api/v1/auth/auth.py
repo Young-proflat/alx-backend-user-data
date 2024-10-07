@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 """
-Manage API authentication system
+auth class def
 """
 from flask import request
 from typing import List, TypeVar
+import os
 
 
-class Auth():
-    """
-    Manage API authentication methods
-    """
+class Auth:
+    """ auth class """
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """ Return boolean """
-        if path is None or excluded_paths is None or not len(excluded_paths):
+        """ returns False - path and excluded_paths
+        """
+        if excluded_paths is None or len(excluded_paths) == 0:
+            return True
+
+        if path is None:
             return True
 
         if path[-1] != '/':
             path += '/'
+
         if excluded_paths[-1] != '/':
             excluded_paths += '/'
 
@@ -29,14 +33,26 @@ class Auth():
 
         if path in excluded_paths:
             return False
-        return True
+        else:
+            return True
 
     def authorization_header(self, request=None) -> str:
-        """ Request Flask object """
-        if request is None or 'Authorization' not in request.headers:
+        """ returns None - request
+        request is flask object
+        """
+        if request is None or request.headers.get('Authorization') is None:
             return None
-        return request.headers.get('Authorization')
+        return request.headers['Authorization']
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """ Flask request object """
+        """ returns None - request
+        request will be the Flask request object
+        """
         return None
+
+    def session_cookie(self, request=None):
+        """ returns a cookie value from request """
+        if request is None:
+            return None
+        cookie = os.getenv("SESSION_NAME")
+        return request.cookies.get(cookie)
